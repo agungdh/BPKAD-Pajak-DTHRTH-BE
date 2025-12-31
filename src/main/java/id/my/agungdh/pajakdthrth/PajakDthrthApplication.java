@@ -3,7 +3,10 @@ package id.my.agungdh.pajakdthrth;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
 @SpringBootApplication
+@EnableJpaAuditing
 public class PajakDthrthApplication {
 
     public static void main(String[] args) {
