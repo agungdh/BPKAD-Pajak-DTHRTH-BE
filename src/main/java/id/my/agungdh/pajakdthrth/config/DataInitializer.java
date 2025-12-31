@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 @Configuration
+@org.springframework.context.annotation.Profile("seeding")
 public class DataInitializer {
 
     @Bean
