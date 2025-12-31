@@ -16,4 +16,16 @@ public class SpringDocConfig {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         return new ModelResolver(objectMapper);
     }
+
+    @Bean
+    public io.swagger.v3.oas.models.OpenAPI customOpenAPI() {
+        return new io.swagger.v3.oas.models.OpenAPI()
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("bearer-key",
+                                new io.swagger.v3.oas.models.security.SecurityScheme()
+                                        .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("UUID")))
+                .addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement().addList("bearer-key"));
+    }
 }
