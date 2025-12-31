@@ -15,8 +15,17 @@ public class SoftDeleteIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private KodePajakRepository kodePajakRepository;
 
+    @Autowired
+    private jakarta.persistence.EntityManager entityManager;
+
     @Test
     void shouldAllowCreatingDuplicateAfterSoftDelete() {
+        // Setup Security Context for Auditing
+        Long userId = 999L;
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userId, "password",
+                        java.util.Collections.emptyList()));
+
         // 1. Create active record
         String nama = "Pajak Unique Test " + java.util.UUID.randomUUID();
         KodePajak kp1 = new KodePajak();
@@ -31,6 +40,12 @@ public class SoftDeleteIntegrationTest extends BaseIntegrationTest {
         // Verify it's gone from normal queries
         Optional<KodePajak> deletedKp = kodePajakRepository.findById(kp1.getId());
         assertThat(deletedKp).isEmpty();
+
+        // Verify deleted_by using Native Query (bypassing @SQLRestriction)
+        Long deletedById = (Long) entityManager
+                .createNativeQuery("SELECT deleted_by FROM kode_pajak WHERE id = " + kp1.getId())
+                .getSingleResult();
+        assertThat(deletedById).isEqualTo(userId);
 
         // 3. Create duplicate record with same name
         KodePajak kp2 = new KodePajak();
