@@ -1,0 +1,19 @@
+package id.my.agungdh.pajakdthrth.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.jackson.ModelResolver;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+
+@Configuration
+public class SpringDocConfig {
+
+    @Bean
+    public ModelResolver modelResolver() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        return new ModelResolver(objectMapper);
+    }
+}
