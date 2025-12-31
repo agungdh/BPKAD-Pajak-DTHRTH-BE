@@ -11,5 +11,5 @@ import lombok.Setter;
 @Table(name = "skpd")
 public class SKPD extends BaseEntity {
 
-    private String namaSkpd;
+    private String nama;
 }

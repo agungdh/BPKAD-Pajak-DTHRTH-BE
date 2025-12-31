@@ -68,7 +68,7 @@ class SkpdControllerTest {
                                 .content(jsonRequest))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.uuid").value(response.uuid()))
-                                .andExpect(jsonPath("$.nama_skpd").value(response.namaSkpd()));
+                                .andExpect(jsonPath("$.nama").value(response.nama()));
         }
 
         @Test
@@ -79,7 +79,7 @@ class SkpdControllerTest {
                 mockMvc.perform(get("/api/skpd"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.size()").value(1))
-                                .andExpect(jsonPath("$[0].nama_skpd").value("Dinas Pendapatan"));
+                                .andExpect(jsonPath("$[0].nama").value("Dinas Pendapatan"));
         }
 
         @Test
@@ -92,7 +92,7 @@ class SkpdControllerTest {
                 mockMvc.perform(get("/api/skpd/{uuid}", uuid))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.uuid").value(uuid))
-                                .andExpect(jsonPath("$.nama_skpd").value("Dinas Pendapatan"));
+                                .andExpect(jsonPath("$.nama").value("Dinas Pendapatan"));
         }
 
         @Test
@@ -107,7 +107,7 @@ class SkpdControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.nama_skpd").value("Dinas Kehutanan"));
+                                .andExpect(jsonPath("$.nama").value("Dinas Kehutanan"));
         }
 
         @Test

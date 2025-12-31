@@ -50,7 +50,7 @@ public class AuditingIntegrationTest {
     @Test
     void whenCreateEntity_thenCreatedByIsSetToUserId() {
         SKPD skpd = new SKPD();
-        skpd.setNamaSkpd("Dinas Test Auditing");
+        skpd.setNama("Dinas Test Auditing");
 
         SKPD savedSkpd = skpdRepository.save(skpd);
 
@@ -63,11 +63,11 @@ public class AuditingIntegrationTest {
     @Test
     void whenUpdateEntity_thenUpdatedByIsSetToUserId() {
         SKPD skpd = new SKPD();
-        skpd.setNamaSkpd("Before Update");
+        skpd.setNama("Before Update");
         skpd = skpdRepository.save(skpd);
 
         // Simulate update by same user (or different one if we changed context)
-        skpd.setNamaSkpd("After Update");
+        skpd.setNama("After Update");
         SKPD updatedSkpd = skpdRepository.save(skpd);
 
         assertThat(updatedSkpd.getUpdatedBy()).isEqualTo(testUser.getId());
