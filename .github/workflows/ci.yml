@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   jvm-build:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'graalvm' # Using GraalVM distribution for consistency even in JVM build
+          distribution: 'liberica' # Using Liberica NIK
           
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -51,11 +51,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up GraalVM (Java 25)
+      - name: Set up GraalVM (Liberica NIK 25)
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '25'
-          distribution: 'graalvm'
+          distribution: 'liberica'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Cache Maven packages
