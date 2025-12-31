@@ -21,8 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-public class SecurityIntegrationTest {
+import id.my.agungdh.pajakdthrth.BaseIntegrationTest;
+
+public class SecurityIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private WebApplicationContext context;

@@ -12,23 +12,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-public class KodePajakSecurityTest {
+import id.my.agungdh.pajakdthrth.BaseIntegrationTest;
 
-    @Autowired
-    private WebApplicationContext context;
+public class KodePajakSecurityTest extends BaseIntegrationTest {
 
-    @Test
-    void accessKodePajakEndpoint_WithoutToken_ShouldReturnForbidden() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+        @Autowired
+        private WebApplicationContext context;
 
-        mockMvc.perform(get("/api/kode-pajak"))
-                .andExpect(status().isForbidden());
+        @Test
+        void accessKodePajakEndpoint_WithoutToken_ShouldReturnForbidden() throws Exception {
+                MockMvc mockMvc = MockMvcBuilders
+                                .webAppContextSetup(context)
+                                .apply(springSecurity())
+                                .build();
 
-        mockMvc.perform(post("/api/kode-pajak"))
-                .andExpect(status().isForbidden());
-    }
+                mockMvc.perform(get("/api/kode-pajak"))
+                                .andExpect(status().isForbidden());
+
+                mockMvc.perform(post("/api/kode-pajak"))
+                                .andExpect(status().isForbidden());
+        }
 }

@@ -16,8 +16,9 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-public class AuditingIntegrationTest {
+import id.my.agungdh.pajakdthrth.BaseIntegrationTest;
+
+public class AuditingIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private SkpdRepository skpdRepository;

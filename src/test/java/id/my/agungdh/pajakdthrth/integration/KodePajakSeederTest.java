@@ -10,8 +10,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-public class KodePajakSeederTest {
+import id.my.agungdh.pajakdthrth.BaseIntegrationTest;
+
+import org.springframework.test.context.ActiveProfiles;
+
+@ActiveProfiles({ "test", "seeding" })
+public class KodePajakSeederTest extends BaseIntegrationTest {
 
     @Autowired
     private KodePajakRepository kodePajakRepository;
