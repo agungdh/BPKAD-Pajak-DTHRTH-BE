@@ -26,11 +26,10 @@ public abstract class BaseEntity {
     private String uuid;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @CreatedBy
