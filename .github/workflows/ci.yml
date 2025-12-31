@@ -7,8 +7,8 @@ on:
     branches: [ "master" ]
 
 jobs:
-  jvm-build:
-    name: JVM Build & Test
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -24,6 +24,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       
@@ -31,7 +41,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'liberica' # Using Liberica NIK
+          distribution: 'liberica'
           
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -40,8 +50,31 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
           
-      - name: Build and Test (JVM)
-        run: ./mvnw -B clean verify
+      - name: Run Tests
+        run: ./mvnw -B test
+
+  build:
+    name: Build JAR
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'liberica'
+          
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
+      - name: Build JAR (Skip Tests)
+        run: ./mvnw -B package -DskipTests
         
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
@@ -51,7 +84,7 @@ jobs:
 
   native-build:
     name: Native Build (${{ matrix.os }})
-    needs: jvm-build # Verify JVM build passes first
+    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -73,6 +106,15 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -106,4 +148,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-binary-${{ matrix.arch }}
-          path: target/pajakdthrth # Adjust if artifactId changes
+          path: target/pajakdthrth
