@@ -39,6 +39,12 @@ public abstract class BaseEntity {
     @LastModifiedBy
     private Long updatedBy;
 
+    @Column
+    private LocalDateTime deletedAt;
+
+    @Column
+    private Long deletedBy;
+
     @PrePersist
     public void generateUuid() {
         if (this.uuid == null) {
