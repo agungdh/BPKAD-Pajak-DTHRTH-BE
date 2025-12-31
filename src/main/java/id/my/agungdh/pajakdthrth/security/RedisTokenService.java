@@ -18,15 +18,15 @@ public class RedisTokenService {
         this.redisTemplate = redisTemplate;
     }
 
-    public String createToken(String username) {
+    public String createToken(Long userId) {
         String token = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(TOKEN_PREFIX + token, username, TOKEN_TTL);
+        redisTemplate.opsForValue().set(TOKEN_PREFIX + token, userId.toString(), TOKEN_TTL);
         return token;
     }
 
-    public Optional<String> validateToken(String token) {
-        String username = redisTemplate.opsForValue().get(TOKEN_PREFIX + token);
-        return Optional.ofNullable(username);
+    public Optional<Long> validateToken(String token) {
+        String userIdStr = redisTemplate.opsForValue().get(TOKEN_PREFIX + token);
+        return Optional.ofNullable(userIdStr).map(Long::valueOf);
     }
 
     public void deleteToken(String token) {

@@ -28,9 +28,9 @@ public class OpaqueTokenFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            redisTokenService.validateToken(token).ifPresent(username -> {
+            redisTokenService.validateToken(token).ifPresent(userId -> {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        username, null, Collections.emptyList());
+                        userId, null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             });
         }
