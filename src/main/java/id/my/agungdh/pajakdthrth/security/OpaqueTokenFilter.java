@@ -16,9 +16,12 @@ import java.util.Collections;
 public class OpaqueTokenFilter extends OncePerRequestFilter {
 
     private final RedisTokenService redisTokenService;
+    private final id.my.agungdh.pajakdthrth.repository.UserRepository userRepository;
 
-    public OpaqueTokenFilter(RedisTokenService redisTokenService) {
+    public OpaqueTokenFilter(RedisTokenService redisTokenService,
+            id.my.agungdh.pajakdthrth.repository.UserRepository userRepository) {
         this.redisTokenService = redisTokenService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -29,9 +32,14 @@ public class OpaqueTokenFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             redisTokenService.validateToken(token).ifPresent(userId -> {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userId, null, Collections.emptyList());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                userRepository.findById(Long.valueOf(userId)).ifPresent(user -> {
+                    org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                            "ROLE_" + user.getRole().name());
+
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            user, null, java.util.Collections.singletonList(authority));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                });
             });
         }
 
