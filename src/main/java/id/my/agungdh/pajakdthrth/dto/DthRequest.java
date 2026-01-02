@@ -49,7 +49,6 @@ public class DthRequest {
 
     private String keterangan;
 
-    @NotNull(message = "SKPD wajib diisi")
     @JsonProperty("skpd_id")
     private String skpdId;
 }

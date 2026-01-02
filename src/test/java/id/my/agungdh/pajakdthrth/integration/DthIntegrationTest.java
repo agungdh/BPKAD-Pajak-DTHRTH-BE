@@ -83,12 +83,12 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         // Create SKPD
         testSkpd = new SKPD();
         testSkpd.setNama("Dinas Test");
-        testSkpd = skpdRepository.save(testSkpd);
+        testSkpd = skpdRepository.saveAndFlush(testSkpd);
 
         // Create Kode Pajak
         testKodePajak = new KodePajak();
-        testKodePajak.setNama("411122 - PPh Pasal 22"); // Matches seeding or generic
-        testKodePajak = kodePajakRepository.save(testKodePajak);
+        testKodePajak.setNama("411122 - PPh Pasal 22");
+        testKodePajak = kodePajakRepository.saveAndFlush(testKodePajak);
 
         // Create Admin
         adminUser = new User();
@@ -96,7 +96,7 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         adminUser.setPassword(passwordEncoder.encode("password"));
         adminUser.setNama("Admin User");
         adminUser.setRole(Role.ADMIN);
-        adminUser = userRepository.save(adminUser);
+        adminUser = userRepository.saveAndFlush(adminUser);
         adminToken = redisTokenService.createToken(adminUser.getId());
 
         // Create Regular User
@@ -105,7 +105,8 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         regularUser.setPassword(passwordEncoder.encode("password"));
         regularUser.setNama("Regular User");
         regularUser.setRole(Role.USER);
-        regularUser = userRepository.save(regularUser);
+        regularUser.setSkpd(testSkpd);
+        regularUser = userRepository.saveAndFlush(regularUser);
         userToken = redisTokenService.createToken(regularUser.getId());
 
         // Setup initial DTH Data
@@ -120,7 +121,7 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         testDth.setJumlahPajak(new BigDecimal("100000"));
         testDth.setNamaRekanan("CV. Test");
         testDth.setSkpd(testSkpd);
-        testDth = dthRepository.save(testDth);
+        testDth = dthRepository.saveAndFlush(testDth);
     }
 
     @Test
@@ -134,16 +135,73 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         request.setNilaiBelanjaSp2d(new BigDecimal("5000000"));
         request.setKodePajakId(testKodePajak.getUuid());
         request.setNamaRekanan("PT. Baru");
-        request.setSkpdId(testSkpd.getUuid());
+        // request.setSkpdId(testSkpd.getUuid()); // User request should not need SKPD
+        // ID
         request.setJumlahPajak(new BigDecimal("600000"));
+
+        // Verify token is valid
+        java.util.Optional<Long> userIdOpt = redisTokenService.validateToken(userToken);
+        if (userIdOpt.isEmpty()) {
+            throw new RuntimeException("Token validation failed in test setup! Token: " + userToken);
+        } else {
+            System.out.println("Token valid for user ID: " + userIdOpt.get());
+        }
 
         mockMvc.perform(post("/api/dth")
                 .header("Authorization", "Bearer " + userToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
+                .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
                 .andExpect(jsonPath("$.no_spm", is("SPM-NEW")))
-                .andExpect(jsonPath("$.jumlah_pajak", is(600000)));
+                .andExpect(jsonPath("$.jumlah_pajak", is(600000)))
+                .andExpect(jsonPath("$.skpd.uuid", is(testSkpd.getUuid()))); // Verify assigned to User's SKPD
+    }
+
+    @Test
+    void findAll_AsUser_FiltersBySkpd() throws Exception {
+        // Create another SKPD and DTH
+        SKPD otherSkpd = new SKPD();
+        otherSkpd.setNama("Dinas Lain");
+        otherSkpd = skpdRepository.saveAndFlush(otherSkpd);
+
+        Dth otherDth = new Dth();
+        otherDth.setNoSpm("SPM-OTHER");
+        otherDth.setTglSpm(LocalDate.now());
+        otherDth.setNilaiBelanjaSpm(new BigDecimal("1000000"));
+        otherDth.setNoSp2d("SP2D-OTHER");
+        otherDth.setTglSp2d(LocalDate.now());
+        otherDth.setNilaiBelanjaSp2d(new BigDecimal("1000000"));
+        otherDth.setKodePajak(testKodePajak);
+        otherDth.setJumlahPajak(new BigDecimal("100000"));
+        otherDth.setNamaRekanan("CV. Other");
+        otherDth.setSkpd(otherSkpd);
+        dthRepository.saveAndFlush(otherDth);
+
+        // User (linked to testSkpd) should NOT see otherDth
+        mockMvc.perform(get("/api/dth")
+                .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].uuid", hasItem(testDth.getUuid())))
+                .andExpect(jsonPath("$.[*].uuid", not(hasItem(otherDth.getUuid()))));
+
+        // Admin should see BOTH
+        mockMvc.perform(get("/api/dth")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].uuid", hasItem(testDth.getUuid())))
+                .andExpect(jsonPath("$.[*].uuid", hasItem(otherDth.getUuid())));
+    }
+
+    @Test
+    void access_MasterData_AsUser_Forbidden() throws Exception {
+        mockMvc.perform(get("/api/skpd")
+                .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/kode-pajak")
+                .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isForbidden());
     }
 
     @Test
