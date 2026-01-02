@@ -72,8 +72,8 @@ public class SecurityIntegrationTest extends BaseIntegrationTest {
         user.setUsername("testuser");
         user.setPassword(passwordEncoder.encode("password"));
         user.setNama("Test User");
-        user.setRole(Role.USER);
-        userRepository.save(user);
+        user.setRole(Role.ADMIN);
+        userRepository.saveAndFlush(user);
 
         // 2. Generate Token directly
         String token = redisTokenService.createToken(user.getId());
@@ -92,7 +92,7 @@ public class SecurityIntegrationTest extends BaseIntegrationTest {
         user.setPassword(passwordEncoder.encode("password123"));
         user.setNama("Login User");
         user.setRole(Role.USER);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         // 2. Attempt Login
         AuthRequest loginRequest = new AuthRequest();
