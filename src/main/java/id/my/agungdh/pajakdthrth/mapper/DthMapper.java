@@ -12,10 +12,8 @@ public interface DthMapper {
     DthResponse toResponse(Dth dth);
 
     @Mapping(target = "skpd", ignore = true) // Handled in Service
-    @Mapping(target = "jumlahPajak", ignore = true) // Calculated in Service
     Dth toEntity(DthRequest request);
 
     @Mapping(target = "skpd", ignore = true) // Handled in Service
-    @Mapping(target = "jumlahPajak", ignore = true) // Calculated in Service
     void updateEntityFromRequest(DthRequest request, @MappingTarget Dth entity);
 }

@@ -36,24 +36,9 @@ public class Dth extends BaseEntity {
     private BigDecimal nilaiBelanjaSp2d;
 
     // Account Details
-    @Column(name = "kode_akun")
-    private String kodeAkun;
-
-    // Tax Details
-    @Column(name = "pajak_ppn", precision = 19, scale = 2)
-    private BigDecimal pajakPpn;
-
-    @Column(name = "pajak_pph21", precision = 19, scale = 2)
-    private BigDecimal pajakPph21;
-
-    @Column(name = "pajak_pph22", precision = 19, scale = 2)
-    private BigDecimal pajakPph22;
-
-    @Column(name = "pajak_pph23", precision = 19, scale = 2)
-    private BigDecimal pajakPph23;
-
-    @Column(name = "pajak_pph4_ayat2", precision = 19, scale = 2)
-    private BigDecimal pajakPph4Ayat2;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kode_pajak_id")
+    private KodePajak kodePajak;
 
     @Column(name = "jumlah_pajak", precision = 19, scale = 2)
     private BigDecimal jumlahPajak;

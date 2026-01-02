@@ -29,23 +29,14 @@ public class DthRequest {
     @PositiveOrZero(message = "Nilai Belanja SP2D tidak boleh negatif")
     private BigDecimal nilaiBelanjaSp2d;
 
-    @NotNull(message = "Kode Akun wajib diisi")
-    private String kodeAkun;
+    @NotNull(message = "Kode Pajak ID wajib diisi")
+    @JsonProperty("kode_pajak_id")
+    private String kodePajakId;
 
-    @PositiveOrZero
-    private BigDecimal pajakPpn;
-
-    @PositiveOrZero
-    private BigDecimal pajakPph21;
-
-    @PositiveOrZero
-    private BigDecimal pajakPph22;
-
-    @PositiveOrZero
-    private BigDecimal pajakPph23;
-
-    @PositiveOrZero
-    private BigDecimal pajakPph4Ayat2;
+    @NotNull(message = "Jumlah Pajak wajib diisi")
+    @PositiveOrZero(message = "Jumlah Pajak harus positif atau 0")
+    @JsonProperty("jumlah_pajak")
+    private BigDecimal jumlahPajak;
 
     private String npwp;
 

@@ -15,12 +15,7 @@ public class DthResponse {
     private String noSp2d;
     private LocalDate tglSp2d;
     private BigDecimal nilaiBelanjaSp2d;
-    private String kodeAkun;
-    private BigDecimal pajakPpn;
-    private BigDecimal pajakPph21;
-    private BigDecimal pajakPph22;
-    private BigDecimal pajakPph23;
-    private BigDecimal pajakPph4Ayat2;
+    private KodePajakResponse kodePajak;
     private BigDecimal jumlahPajak;
     private String npwp;
     private String namaRekanan;
@@ -30,9 +25,4 @@ public class DthResponse {
 
     // Nested SKPD info
     private SkpdResponse skpd;
-
-    private LocalDateTime createdAt;
-    private String createdBy;
-    private LocalDateTime updatedAt;
-    private String updatedBy;
 }

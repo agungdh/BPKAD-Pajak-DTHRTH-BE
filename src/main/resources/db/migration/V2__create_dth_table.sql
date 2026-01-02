@@ -10,14 +10,7 @@ CREATE TABLE dth (
     tgl_sp2d DATE,
     nilai_belanja_sp2d DECIMAL(19, 2),
     
-    kode_akun VARCHAR(255),
-    
-    pajak_ppn DECIMAL(19, 2),
-    pajak_pph21 DECIMAL(19, 2),
-    pajak_pph22 DECIMAL(19, 2),
-    pajak_pph23 DECIMAL(19, 2),
-    pajak_pph4_ayat2 DECIMAL(19, 2),
-    
+    kode_pajak_id BIGINT REFERENCES kode_pajak(id),
     jumlah_pajak DECIMAL(19, 2),
     
     npwp VARCHAR(255),
@@ -40,3 +33,4 @@ CREATE TABLE dth (
 
 CREATE INDEX idx_dth_uuid_hash ON dth USING HASH (uuid);
 CREATE INDEX idx_dth_skpd_id ON dth (skpd_id);
+CREATE INDEX idx_dth_kode_pajak_id ON dth (kode_pajak_id);

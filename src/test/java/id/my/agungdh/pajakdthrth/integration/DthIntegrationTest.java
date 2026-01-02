@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.my.agungdh.pajakdthrth.BaseIntegrationTest;
 import id.my.agungdh.pajakdthrth.dto.DthRequest;
 import id.my.agungdh.pajakdthrth.model.Dth;
+import id.my.agungdh.pajakdthrth.model.KodePajak;
 import id.my.agungdh.pajakdthrth.model.Role;
 import id.my.agungdh.pajakdthrth.model.SKPD;
 import id.my.agungdh.pajakdthrth.model.User;
 import id.my.agungdh.pajakdthrth.repository.DthRepository;
+import id.my.agungdh.pajakdthrth.repository.KodePajakRepository;
 import id.my.agungdh.pajakdthrth.repository.SkpdRepository;
 import id.my.agungdh.pajakdthrth.repository.UserRepository;
 import id.my.agungdh.pajakdthrth.security.RedisTokenService;
@@ -42,6 +44,9 @@ public class DthIntegrationTest extends BaseIntegrationTest {
     private SkpdRepository skpdRepository;
 
     @Autowired
+    private KodePajakRepository kodePajakRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -57,6 +62,7 @@ public class DthIntegrationTest extends BaseIntegrationTest {
     private String adminToken;
     private String userToken;
     private SKPD testSkpd;
+    private KodePajak testKodePajak;
     private Dth testDth;
 
     @BeforeEach
@@ -72,11 +78,17 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         dthRepository.deleteAll();
         userRepository.deleteAll();
         skpdRepository.deleteAll();
+        kodePajakRepository.deleteAll();
 
         // Create SKPD
         testSkpd = new SKPD();
         testSkpd.setNama("Dinas Test");
         testSkpd = skpdRepository.save(testSkpd);
+
+        // Create Kode Pajak
+        testKodePajak = new KodePajak();
+        testKodePajak.setNama("411122 - PPh Pasal 22"); // Matches seeding or generic
+        testKodePajak = kodePajakRepository.save(testKodePajak);
 
         // Create Admin
         adminUser = new User();
@@ -104,8 +116,7 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         testDth.setNoSp2d("SP2D-001");
         testDth.setTglSp2d(LocalDate.now());
         testDth.setNilaiBelanjaSp2d(new BigDecimal("1000000"));
-        testDth.setKodeAkun("5.1.01");
-        testDth.setPajakPpn(new BigDecimal("100000"));
+        testDth.setKodePajak(testKodePajak);
         testDth.setJumlahPajak(new BigDecimal("100000"));
         testDth.setNamaRekanan("CV. Test");
         testDth.setSkpd(testSkpd);
@@ -121,11 +132,10 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         request.setNoSp2d("SP2D-NEW");
         request.setTglSp2d(LocalDate.now());
         request.setNilaiBelanjaSp2d(new BigDecimal("5000000"));
-        request.setKodeAkun("5.2.02");
+        request.setKodePajakId(testKodePajak.getUuid());
         request.setNamaRekanan("PT. Baru");
         request.setSkpdId(testSkpd.getUuid());
-        request.setPajakPpn(new BigDecimal("500000"));
-        request.setPajakPph21(new BigDecimal("100000"));
+        request.setJumlahPajak(new BigDecimal("600000"));
 
         mockMvc.perform(post("/api/dth")
                 .header("Authorization", "Bearer " + userToken)
@@ -133,8 +143,7 @@ public class DthIntegrationTest extends BaseIntegrationTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.no_spm", is("SPM-NEW")))
-                .andExpect(jsonPath("$.pajak_ppn", is(500000)))
-                .andExpect(jsonPath("$.jumlah_pajak", is(600000))); // 500k + 100k
+                .andExpect(jsonPath("$.jumlah_pajak", is(600000)));
     }
 
     @Test
@@ -154,7 +163,8 @@ public class DthIntegrationTest extends BaseIntegrationTest {
         request.setNoSp2d("SP2D-UPDATED");
         request.setTglSp2d(LocalDate.now());
         request.setNilaiBelanjaSp2d(new BigDecimal("2000000"));
-        request.setKodeAkun("5.1.01");
+        request.setKodePajakId(testKodePajak.getUuid());
+        request.setJumlahPajak(new BigDecimal("200000"));
         request.setNamaRekanan("CV. Test");
         request.setSkpdId(testSkpd.getUuid());
 
@@ -170,13 +180,13 @@ public class DthIntegrationTest extends BaseIntegrationTest {
     void update_AsUser_Forbidden() throws Exception {
         DthRequest request = new DthRequest();
         request.setNoSpm("SPM-FAIL");
-        // ... omitted other fields but it doesn't matter for 403 check
         request.setTglSpm(LocalDate.now());
         request.setNilaiBelanjaSpm(BigDecimal.ZERO);
         request.setNoSp2d("SP");
         request.setTglSp2d(LocalDate.now());
         request.setNilaiBelanjaSp2d(BigDecimal.ZERO);
-        request.setKodeAkun("1");
+        request.setKodePajakId(testKodePajak.getUuid());
+        request.setJumlahPajak(BigDecimal.ZERO);
         request.setNamaRekanan("A");
         request.setSkpdId(testSkpd.getUuid());
 
