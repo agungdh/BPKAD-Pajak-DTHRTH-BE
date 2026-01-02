@@ -272,4 +272,14 @@ public class DthIntegrationTest extends BaseIntegrationTest {
                 .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void exportPdf_AsAdmin_Success() throws Exception {
+        mockMvc.perform(get("/api/dth/export/pdf")
+                .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(
+                        header().string("Content-Disposition", containsString("attachment; filename=dth_report.pdf")));
+    }
 }

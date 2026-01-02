@@ -3,6 +3,7 @@ package id.my.agungdh.pajakdthrth.controller;
 import id.my.agungdh.pajakdthrth.dto.DthRequest;
 import id.my.agungdh.pajakdthrth.dto.DthResponse;
 import id.my.agungdh.pajakdthrth.service.DthService;
+import id.my.agungdh.pajakdthrth.service.PdfService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.List;
 public class DthController {
 
     private final DthService dthService;
+    private final PdfService pdfService;
 
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -48,5 +50,21 @@ public class DthController {
     @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable String uuid) {
         dthService.delete(uuid);
+    }
+
+    @GetMapping("/export/pdf")
+    @PreAuthorize("hasRole('ADMIN')")
+    public org.springframework.http.ResponseEntity<byte[]> exportPdf() {
+        List<DthResponse> dthList = dthService.findAll();
+        java.io.ByteArrayInputStream bis = pdfService.generateDthReport(dthList);
+
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=dth_report.pdf");
+
+        return org.springframework.http.ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(bis.readAllBytes());
     }
 }
